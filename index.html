@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mahfuj Temp - Temp Mail & Number</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#0f172a;color:white;padding:15px}
+.header{text-align:center;background:linear-gradient(#1e293b,#0f172a);border:2px solid #22c55e;border-radius:15px;padding:15px}
+.header h2{color:#22c55e}
+.box{background:#1e293b;border-radius:15px;padding:15px;margin-top:12px;border:1px solid #334155}
+.btn{width:100%;padding:12px;border:none;border-radius:12px;font-weight:900;font-size:16px;margin-top:8px;cursor:pointer}
+.btn-green{background:#22c55e;color:white}
+.btn-blue{background:#3b82f6;color:white}
+.btn-purple{background:#a855f7;color:white}
+.email-box{background:black;padding:12px;border-radius:10px;text-align:center;font-weight:900;margin:10px 0;border:1px dashed #22c55e;word-break:break-all}
+.inbox-item{background:#0f172a;padding:10px;border-radius:10px;margin-top:8px;border-left:4px solid #22c55e}
+input{width:100%;padding:11px;border-radius:10px;border:none;margin-top:8px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="header">
+  <h2>⚡ Mahfuj Temp</h2>
+  <p>Disposable email & phone number - Active ✅</p>
+  <p style="font-size:12px;color:#94a3b8;margin-top:5px">New email / SMS আসলে অটো চলে আসবে</p>
+</div>
+
+<div class="box">
+  <button class="btn btn-green" onclick="genEmail()">📧 Email</button>
+  <button class="btn btn-blue" onclick="genNumber()">📱 Number</button>
+  <button class="btn btn-purple" onclick="showCustom()">🎨 Custom email</button>
+
+  <div id="customBox" style="display:none">
+    <input id="customInput" placeholder="নাম লিখো - যেমন: mahfuj123">
+    <button class="btn btn-green" onclick="makeCustom()">বানাও ✅</button>
+  </div>
+
+  <div class="email-box" id="myEmail">এখনো Email বানাও নাই</div>
+  <button class="btn btn-green" onclick="copyEmail()">📋 Copy Email</button>
+  <button class="btn btn-blue" onclick="refreshInbox()">🔄 Refresh Inbox</button>
+</div>
+
+<div class="box">
+  <h3>📥 Inbox</h3>
+  <div id="inbox"><p style="color:#94a3b8;margin-top:8px">কোনো মেইল আসে নাই এখনো...</p></div>
+</div>
+
+<script>
+let tg = window.Telegram.WebApp; tg.expand();
+let names = ["mahfuj","temp","king","bd","pro","zone","rock"];
+function genEmail(){
+  let n = names[Math.floor(Math.random()*names.length)] + Math.floor(Math.random()*9999);
+  document.getElementById('myEmail').innerText = n + "@mahfujtemp.ml";
+  addDemoMail();
+}
+function genNumber(){
+  let num = "+1 202 555 0" + Math.floor(Math.random()*900+100);
+  document.getElementById('myEmail').innerText = num;
+}
+function showCustom(){ document.getElementById('customBox').style.display='block'; }
+function makeCustom(){
+  let v = document.getElementById('customInput').value;
+  if(!v) return alert("নাম লিখো ভাই!");
+  document.getElementById('myEmail').innerText = v + "@mahfujtemp.ml";
+}
+function copyEmail(){
+  let t = document.getElementById('myEmail').innerText;
+  navigator.clipboard.writeText(t); alert("কপি হয়ে গেছে: "+t);
+}
+function addDemoMail(){
+  document.getElementById('inbox').innerHTML = `<div class="inbox-item"><b>✅ OTP Code: 482910</b><br><small>from: noreply@google.com - ১ মিনিট আগে</small></div>`;
+}
+function refreshInbox(){ addDemoMail(); alert("ইনবক্স রিফ্রেশ হইছে"); }
+</script>
+</body>
+</html>
