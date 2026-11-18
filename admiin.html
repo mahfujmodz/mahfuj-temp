@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Mahfuj Shopping</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#05010f;color:#fff;padding:12px;padding-bottom:60px}
+@keyframes rgbMove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.top{background:linear-gradient(90deg,#ff00cc,#ffe600,#00e5ff,#7b00ff,#ff00cc);background-size:300% 100%;animation:rgbMove 3s linear infinite;text-align:center;padding:11px;font-weight:900;font-size:13px;border-radius:14px}
+.header{text-align:center;padding:14px 6px 6px}
+.header b{font-size:28px;background:linear-gradient(90deg,#ffe600,#ff00cc,#00e5ff,#ffe600);background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:rgbMove 3s linear infinite}
+.header p{color:#94a3b8;font-size:12px}
+.status{text-align:center;font-size:12px;color:#22c55e;font-weight:800;margin-top:4px}
+.topbar{position:sticky;top:0;z-index:30;background:#0a0620ee;display:flex;gap:10px;align-items:center;padding:10px 6px;border-bottom:1px solid #a855f7}
+.back-btn{background:#fff;color:#111;border:none;width:42px;height:42px;border-radius:50%;font-size:24px;font-weight:900;display:none;flex-shrink:0}
+.count{margin-left:auto;background:#ff00cc;padding:5px 10px;border-radius:20px;font-size:11px;font-weight:900}
+.tabs{display:flex;gap:8px;margin-top:12px}
+.tab{flex:1;padding:12px;border-radius:14px;background:#1a1033;border:1px solid #a855f7;color:#fff;font-weight:800;text-align:center;font-size:13px;cursor:pointer}
+.tab.active{background:linear-gradient(90deg,#ff00cc,#7b00ff)}
+.card{background:#1a1033;border:1px solid #a855f7;border-radius:18px;padding:14px;margin-top:14px}
+.card h3{color:#facc15;font-size:16px}.card h3 small{display:block;color:#94a3b8;font-size:11px;font-weight:400}
+label{font-size:13px;color:#cbd5e1;display:block;margin-top:10px;font-weight:700}
+input,select,textarea{width:100%;padding:12px;border-radius:10px;border:1px solid #444;background:#0f0a25;color:#fff;margin-top:4px}
+textarea{min-height:60px}
+button{width:100%;padding:13px;border:none;border-radius:12px;font-weight:900;margin-top:10px;cursor:pointer}
+.add{background:linear-gradient(90deg,#ff00cc,#7b00ff);color:#fff}
+.save{background:linear-gradient(90deg,#22c55e,#00e5ff);color:#fff}
+.gray{background:#333;color:#fff}.blue{background:#0088cc;color:#fff}
+.item{background:#0f0a25;border:1px solid #333;border-radius:14px;padding:10px;margin-top:10px;display:flex;gap:10px;align-items:center}
+.item img{width:60px;height:60px;border-radius:10px;object-fit:cover;background:#fff;flex-shrink:0}
+.item .info{flex:1;min-width:0}.item .info b{font-size:14px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.item .info small{color:#94a3b8;font-size:12px}
+.del{background:#ef4444;color:#fff;width:auto;padding:9px 12px;margin:0;font-size:12px}
+.view{background:#ffe600;color:#000;width:auto;padding:9px 12px;margin:0;font-size:12px}
+.var{border:1px dashed #a855f7;padding:10px;border-radius:12px;margin-top:10px}
+.preview{width:100%;border-radius:12px;margin-top:8px;display:none;aspect-ratio:16/7;object-fit:cover;border:2px solid #ffe600}
+.tip{font-size:12px;color:#94a3b8;margin-top:6px}
+.empty{text-align:center;color:#888;font-size:13px;padding:18px;border:1px dashed #333;border-radius:12px;margin-top:10px}
+.num{background:#ffe600;color:#000;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="top">⚡ MAHFUJ SHOPPING - ADMIN - NEW FIREBASE ⚡</div>
+<div class="header"><b>👑 MAHFUJ SHOPPING</b><p>Admin Panel - নতুন Firebase Connected ✅</p></div>
+<p class="status" id="status">✅ Firebase: mahfuj-shopping-8104d / Admin - Connecting...</p>
+<div class="topbar"><button class="back-btn" id="backBtn" onclick="onAdminBack()">‹</button><div><b>Admin Panel</b><small id="topSub">Home</small></div><span class="count" id="totalCount">0 Product</span></div>
+<div class="tabs"><div class="tab active" id="tabHome" onclick="showAdminView('home')">🏠 Home</div><div class="tab" id="tabCat" onclick="showAdminView('cat')">📂 Category</div><div class="tab" id="tabProd" onclick="showAdminView('prod')">💰 Products</div></div>
+<div id="view-home">
+<div class="card"><h3>🖼️ Banner - ৫টা পর্যন্ত <small>একটা Add করলে আগেরটা মুছবে না</small></h3>
+<p class="tip">ব্যানার আছে: <b id="bannerCount" style="color:#ffe600">0 / 5</b></p>
+<label>Banner ছবির Link</label><input id="bannerImg" placeholder="https://...jpg"><img id="bannerPreview" class="preview">
+<label>Banner Title</label><input id="bannerTitle" placeholder="MAHFUJ SHOPPING">
+<label>Banner ছোট লেখা</label><input id="bannerDesc" placeholder="Shop Smart... Save More...">
+<label>Banner Click Link</label><input id="bannerLink" placeholder="https://t.me/mahfujshpping">
+<button class="add" type="button" onclick="addBanner()">➕ ADD BANNER</button>
+<button class="gray" type="button" onclick="clearBanner()">🗑️ সব Banner মুছো</button>
+<div id="bannerList"></div></div>
+<div class="card"><h3>🔗 Links</h3>
+<label>WhatsApp Number</label><input id="wa" value="8801972682887">
+<label>Telegram Link</label><input id="tg" value="https://t.me/mahfujshpping">
+<label>Group Link</label><input id="grp" value="https://t.me/mahfujshpping">
+<button class="save" type="button" onclick="saveLinks()">💾 SAVE LINKS</button>
+<button class="blue" type="button" onclick="goSite()">🌐 SITE দেখো</button></div>
+<div class="card"><h3>📦 Add করা সব Product</h3><div id="allProductsHome"></div></div>
+</div>
+<div id="view-cat" style="display:none">
+<div class="card"><h3>📂 Category Add করো</h3>
+<label>Category নাম</label><input id="cName" placeholder="Social Media App">
+<label>নিচের ছোট লেখা</label><input id="cSub" placeholder="Subscriptions">
+<label>ভিতরের টাইটেল</label><input id="cLabel" placeholder="NETFLIX • CANVA • YOUTUBE">
+<label>Description</label><input id="cDesc" placeholder="সব App এর Premium">
+<label>Category ছবির Link</label><input id="cImg" placeholder="https://...png">
+<button class="add" type="button" onclick="addCat()">➕ ADD CATEGORY</button></div>
+<div class="card"><h3>📂 সব Category</h3><div id="catList"></div></div>
+</div>
+<div id="view-prod" style="display:none">
+<div class="card"><h3>💰 Product Add করো</h3>
+<label>Category Select করো 👇</label><select id="pCat"></select>
+<label>Product নাম</label><input id="pName" placeholder="Netflix">
+<label>বাংলা নাম</label><input id="pBn" placeholder="প্রিমিয়াম">
+<label>নিচের ছোট লেখা</label><input id="pSub" placeholder="Netflix 1 Month">
+<label>ছবির Link</label><input id="pImg" placeholder="https://...">
+<label>Service</label><textarea id="pService" placeholder="✅ Premium 4K&#10;✅ 1 Month Full Access"></textarea>
+<label>প্যাকেজ + দাম + কয়দিন</label><div id="varBox"></div>
+<button class="gray" type="button" onclick="addVarRow()">+ আরেকটা প্যাকেজ যোগ করো</button>
+<button class="add" type="button" onclick="addProd()">➕ ADD PRODUCT</button></div>
+<div class="card"><h3>📦 Add করা সব Product</h3><div id="prodList"></div></div>
+</div>
+<div id="view-catDetail" style="display:none">
+<div class="card"><h3 id="catDetailTitle">Category</h3><p class="tip" id="catDetailDesc"></p><div id="catDetailProducts"></div><button class="gray" type="button" onclick="onAdminBack()">‹ Back to Category</button></div>
+</div>
+<div class="card"><h3>⚙️ Settings</h3><button class="blue" type="button" onclick="goSite()">🌐 SITE দেখো</button><button style="background:#ef4444;color:#fff" type="button" onclick="resetAll()">🔄 সব Reset করো</button></div>
+<script>
+// ===== ADMIN - নতুন Firebase - com.admin.mahfuj =====
+var firebaseConfig={apiKey:"AIzaSyBGeC7PikRY138IhcB9xoQ-9X732-qx8-w",authDomain:"mahfuj-shopping-8104d.firebaseapp.com",databaseURL:"https://mahfuj-shopping-8104d-default-rtdb.firebaseio.com",projectId:"mahfuj-shopping-8104d",storageBucket:"mahfuj-shopping-8104d.firebasestorage.app",messagingSenderId:"683846304189",appId:"1:683846304189:android:a72ff48c517517af6d52d4"};
+try{firebase.initializeApp(firebaseConfig)}catch(e){}
+var DATA={cats:[],products:[],whatsapp:"8801972682887",telegram:"https://t.me/mahfujshpping",group:"https://t.me/mahfujshpping",banners:[]};
+var DEF_CATS=[
+{id:"c1",name:"Social Media App",sub:"Subscriptions",label:"NETFLIX • CANVA • YOUTUBE",desc:"সব App এর Premium Subscription",img:"https://cdn-icons-png.flaticon.com/512/5968/5968572.png"},
+{id:"c2",name:"Game",sub:"Subscriptions",label:"GAME PASS • PREMIUM",desc:"সব গেমের Subscription & Pass",img:"https://cdn-icons-png.flaticon.com/512/5930/5930147.png"},
+{id:"c3",name:"Game Top-up",sub:"& Services",label:"DIAMOND • UC • COINS",desc:"Free Fire, PUBG, TikTok Coins - সব Top-up",img:"https://cdn-icons-png.flaticon.com/512/686/686458.png"},
+{id:"c4",name:"Website &",sub:"Application Making",label:"WEBSITE • APP • LANDING PAGE",desc:"Website, App বানিয়ে নিন - কম দামে",img:"https://cdn-icons-png.flaticon.com/512/2282/2282188.png"},
+{id:"c5",name:"Social Media",sub:"Services",label:"FOLLOWERS • LIKES • VIEWS",desc:"TikTok, Facebook, Instagram - সব Service",img:"https://cdn-icons-png.flaticon.com/512/3046/3046121.png"},
+{id:"c6",name:"Telegram",sub:"Premium & Stars",label:"PREMIUM • STARS",desc:"Telegram Premium, Stars - Best Price",img:"https://cdn-icons-png.flaticon.com/512/2111/2111646.png"}
+];
+if(!DATA.cats.length)DATA.cats=DEF_CATS;
+function save(){try{localStorage.setItem('mahfuj_final',JSON.stringify(DATA))}catch(e){} try{firebase.database().ref('mahfuj_final').set(DATA)}catch(e){} document.getElementById('status').innerText="✅ Saved to New Firebase! - "+new Date().toLocaleTimeString(); render();}
+var adminStack=["home"];
+function showAdminView(v,push){if(push===undefined)push=true; ["home","cat","prod","catDetail"].forEach(function(x){document.getElementById('view-'+x).style.display=x===v?"block":"none"}); document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')}); if(v==="home")document.getElementById('tabHome').classList.add('active'); if(v==="cat")document.getElementById('tabCat').classList.add('active'); if(v==="prod")document.getElementById('tabProd').classList.add('active'); if(v==="catDetail")document.getElementById('tabCat').classList.add('active'); document.getElementById('backBtn').style.display=v==="home"?"none":"block"; document.getElementById('topSub').innerText=v==="home"?"Home":v==="cat"?"Category":v==="prod"?"Products":"Category Detail"; if(push&&adminStack[adminStack.length-1]!==v)adminStack.push(v); window.scrollTo(0,0)}
+function onAdminBack(){if(adminStack.length>1){adminStack.pop(); showAdminView(adminStack[adminStack.length-1],false)}else showAdminView("home",false)}
+window.addEventListener('popstate',function(){onAdminBack()});
+function productCard(p,i){var c=DATA.cats.find(function(x){return x.id===p.cat}); var vars=(p.variants||[]).map(function(v){return v.name+": "+v.price+"৳ ("+(v.days||'')+")"}).join(" | "); return '<div class="item"><img src="'+(p.img||(c&&c.img)||'')+'"><div class="info"><b>['+(c?c.name:'?')+'] '+p.name+' '+(p.bn||'')+'</b><small>'+(p.sub||'')+'<br><span style="color:#ffe600;font-weight:900">'+vars+'</span></small></div><button class="del" type="button" onclick="delProd('+i+')">🗑️ Delete</button></div>'}
+function render(){document.getElementById('totalCount').innerText=DATA.products.length+" Product"; document.getElementById('bannerCount').innerText=DATA.banners.length+" / 5"; document.getElementById('pCat').innerHTML=DATA.cats.map(function(c){return '<option value="'+c.id+'">'+c.name+' '+(c.sub||'')+'</option>'}).join(''); document.getElementById('catList').innerHTML=DATA.cats.map(function(c,i){var cnt=DATA.products.filter(function(p){return p.cat===c.id}).length; return '<div class="item"><img src="'+c.img+'"><div class="info"><b>'+c.name+' '+(c.sub||'')+'</b><small>'+(c.label||'')+' • '+cnt+' Product</small></div><button class="view" type="button" onclick="openCatDetail(\''+c.id+'\')">👀 দেখো</button><button class="del" type="button" onclick="delCat('+i+')">🗑️</button></div>'}).join(''); var prodHtml=DATA.products.length?DATA.products.map(function(p,i){return productCard(p,i)}).join(''):'<div class="empty">এখনো কোনো Product নাই</div>'; document.getElementById('prodList').innerHTML=prodHtml; document.getElementById('allProductsHome').innerHTML=prodHtml; document.getElementById('wa').value=DATA.whatsapp; document.getElementById('tg').value=DATA.telegram; document.getElementById('grp').value=DATA.group||''; document.getElementById('bannerList').innerHTML=DATA.banners.length?DATA.banners.map(function(b,i){return '<div class="item"><span class="num">'+(i+1)+'</span><img src="'+(b.img||'')+'" style="width:80px;height:50px"><div class="info"><b>'+(b.title||'Banner')+'</b><small>'+(b.desc||'')+'</small></div><button class="del" type="button" onclick="delBanner('+i+')">🗑️ Delete</button></div>'}).join(''):'<div class="empty">এখনো Banner নাই</div>'}
+function openCatDetail(catId){var c=DATA.cats.find(function(x){return x.id===catId}); if(!c)return; document.getElementById('catDetailTitle').innerText=c.name+" "+(c.sub||''); document.getElementById('catDetailDesc').innerText=c.desc||''; var list=DATA.products.map(function(p,i){var np={}; for(var k in p)np[k]=p[k]; np._idx=i; return np}).filter(function(p){return p.cat===catId}); document.getElementById('catDetailProducts').innerHTML=list.length?list.map(function(p){return productCard(p,p._idx)}).join(''):'<div class="empty">এই Category তে এখনো Product নাই</div>'; showAdminView('catDetail')}
+function addBanner(){if(DATA.banners.length>=5){alert("৫টা হয়ে গেছে! আগে একটা Delete করো"); return} var img=document.getElementById('bannerImg').value.trim(); if(!img){alert("আগে Banner ছবির Link দাও!"); return} DATA.banners.push({img:img,title:document.getElementById('bannerTitle').value.trim()||("Banner "+(DATA.banners.length+1)),desc:document.getElementById('bannerDesc').value.trim()||"Shop Smart... Save More...",link:document.getElementById('bannerLink').value.trim()||DATA.telegram}); save(); alert("✅ Banner Added! মোট: "+DATA.banners.length+" টা"); document.getElementById('bannerImg').value=''; document.getElementById('bannerTitle').value=''; document.getElementById('bannerDesc').value=''; document.getElementById('bannerPreview').style.display='none'}
+function delBanner(i){if(confirm("Banner "+(i+1)+" Delete করবা?")){DATA.banners.splice(i,1); save()}}
+function clearBanner(){if(confirm("সব Banner মুছবা?")){DATA.banners=[]; save()}}
+document.getElementById('bannerImg').addEventListener('input',function(e){var p=document.getElementById('bannerPreview'); if(e.target.value){p.src=e.target.value; p.style.display='block'}else p.style.display='none'});
+function addCat(){var n=document.getElementById('cName').value.trim(); if(!n){alert("Category নাম দাও"); return} DATA.cats.push({id:'c'+Date.now(),name:n,sub:document.getElementById('cSub').value.trim(),label:document.getElementById('cLabel').value.trim(),desc:document.getElementById('cDesc').value.trim(),img:document.getElementById('cImg').value.trim()||'https://via.placeholder.com/70'}); save(); alert("✅ Category Added!"); ['cName','cSub','cLabel','cDesc','cImg'].forEach(function(id){document.getElementById(id).value=''})}
+function delCat(i){if(confirm("এই Category + ভিতরের সব Product Delete হবে?")){var id=DATA.cats[i].id; DATA.cats.splice(i,1); DATA.products=DATA.products.filter(function(p){return p.cat!==id}); save()}}
+function addVarRow(name,price,desc,days){var d=document.createElement('div'); d.className='var'; d.innerHTML='<label>প্যাকেজ নাম</label><input class="vName" value="'+(name||'')+'" placeholder="Netflix 1 Month"><label>দাম</label><input class="vPrice" type="number" value="'+(price||'')+'" placeholder="250"><label>কয়দিন</label><input class="vDays" value="'+(days||'30 দিন')+'" placeholder="30 দিন"><label>ছোট Description</label><input class="vDesc" value="'+(desc||'')+'" placeholder="4K Premium"><button style="background:#ef4444;color:#fff;padding:8px" type="button" onclick="this.parentElement.remove()">❌ বাদ দাও</button>'; document.getElementById('varBox').appendChild(d)}
+addVarRow("Netflix 1 Month","250","4K Premium","30 দিন");
+function addProd(){var cat=document.getElementById('pCat').value; var name=document.getElementById('pName').value.trim(); if(!cat||!name){alert("Category + Product নাম দাও"); return} var variants=[]; document.querySelectorAll('.var').forEach(function(v){var n=v.querySelector('.vName').value.trim(); var pr=v.querySelector('.vPrice').value.trim(); var ds=v.querySelector('.vDesc').value.trim(); var dy=v.querySelector('.vDays').value.trim(); if(n&&pr)variants.push({name:n,price:Number(pr),desc:ds,days:dy})}); if(!variants.length){alert("কমপক্ষে ১টা প্যাকেজ + দাম + কয়দিন দাও"); return} DATA.products.push({cat:cat,name:name,bn:document.getElementById('pBn').value.trim(),sub:document.getElementById('pSub').value.trim(),img:document.getElementById('pImg').value.trim(),service:document.getElementById('pService').value.trim(),variants:variants}); save(); alert("✅ Product Added! এখন User এ দেখবে"); ['pName','pBn','pSub','pImg','pService'].forEach(function(id){document.getElementById(id).value=''}); document.getElementById('varBox').innerHTML=''; addVarRow(); showAdminView('prod')}
+function delProd(i){var p=DATA.products[i]; if(confirm("Delete করবা?\n"+(p?p.name:''))){DATA.products.splice(i,1); save()}}
+function saveLinks(){DATA.whatsapp=document.getElementById('wa').value; DATA.telegram=document.getElementById('tg').value; DATA.group=document.getElementById('grp').value; save(); alert("✅ Links Saved!")}
+function goSite(){window.location.href='index.html'}
+function resetAll(){if(confirm("সব মুছে ফেলবা?")){localStorage.removeItem('mahfuj_final'); try{firebase.database().ref('mahfuj_final').remove()}catch(e){} location.reload()}}
+var l={}; try{l=JSON.parse(localStorage.getItem('mahfuj_final')||'{}')}catch(e){} if(l.cats)DATA={...DATA,...l};
+render(); showAdminView('home',false);
+try{firebase.database().ref('mahfuj_final').on('value',function(s){if(s.val()){DATA={...DATA,...s.val()}; try{localStorage.setItem('mahfuj_final',JSON.stringify(DATA))}catch(e){} document.getElementById('status').innerText="✅ Admin Firebase Connected - Live!"; render()}})}catch(e){document.getElementById('status').innerText="⚠️ Firebase Connect হয় নাই"}
+</script>
+</body>
+</html>
